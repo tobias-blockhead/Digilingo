@@ -613,4 +613,105 @@ function speak(txt, rate=0.6, pitch=1.05) {
   speechSynthesis.speak(u);
 }
 
-let tx0=0,ty0=0,t0=0,isSw=false,sd=null,
+let tx0=0,ty0=0,t0=0,isSw=false,sd=null,li=-1,ft=null;
+
+function gc() { return [...document.querySelectorAll('.chunk')]; }
+function rc() { gc().forEach(c => c.classList.remove('active','visited')); }
+
+function sfb(txt) {
+  const el = document.getElementById('feedback');
+  el.textContent = txt; el.classList.add('show');
+  clearTimeout(ft); ft = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function gci(x) {
+  const ch = gc();
+  for (let i=0; i<ch.length; i++) {
+    const r = ch[i].getBoundingClientRect();
+    if (x >= r.left-6 && x <= r.right+6) return i;
+  }
+  const rs = ch.map(c => c.getBoundingClientRect());
+  if (x < rs[0].left) return 0;
+  if (x > rs[rs.length-1].right) return ch.length-1;
+  return -1;
+}
+
+function doTap(cx, cy) {
+  const u = document.getElementById('logoUnit');
+  const rect = u.getBoundingClientRect();
+  const rip = document.createElement('div'); rip.className = 'ripple'; const sz = 60;
+  rip.style.cssText = `width:${sz}px;height:${sz}px;left:${cx-rect.left-sz/2}px;top:${cy-rect.top-sz/2}px`;
+  u.appendChild(rip); setTimeout(() => rip.remove(), 800);
+  gc().forEach((c,i) => {
+    setTimeout(() => c.classList.add('active'), i*55);
+    setTimeout(() => c.classList.remove('active'), i*55+300);
+  });
+  speak('Digilingo', 0.8, 1.05);
+  animWave();
+  sfb('◆ DIGILINGO ◆');
+  document.getElementById('instruction').textContent = 'now swipe the letters →';
+}
+
+const swEl = document.getElementById('letterSwipe');
+
+swEl.addEventListener('touchstart', e => {
+  const t = e.touches[0]; tx0=t.clientX; ty0=t.clientY; t0=Date.now();
+  isSw=false; sd=null; li=-1;
+  speechSynthesis && speechSynthesis.cancel();
+  stopWave(); rc();
+}, {passive:true});
+
+swEl.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t=e.touches[0], dx=t.clientX-tx0, dy=t.clientY-ty0;
+  if (!sd && (Math.abs(dx)>8||Math.abs(dy)>8)) sd = Math.abs(dx)>Math.abs(dy)?'h':'v';
+  if (sd!=='h'||dx<0) return;
+  isSw=true;
+  document.getElementById('instruction').textContent = '◈ reading...';
+  const idx=gci(t.clientX); if(idx===-1||idx===li) return; li=idx;
+  const ch=gc();
+  for(let i=0;i<idx;i++){ch[i].classList.remove('active');ch[i].classList.add('visited');}
+  ch[idx].classList.remove('visited'); ch[idx].classList.add('active');
+  speak(PH[idx],0.55,1.1); animWave(); sfb(PH[idx].toUpperCase());
+}, {passive:false});
+
+swEl.addEventListener('touchend', e => {
+  const t=e.changedTouches[0], dx=t.clientX-tx0, el=Date.now()-t0;
+  if (isSw&&sd==='h'&&dx>0) {
+    const ch=gc(), v=ch.filter(c=>c.classList.contains('visited')||c.classList.contains('active')).length;
+    if (v===ch.length) {
+      setTimeout(()=>{speak('Digilingo',0.8,1.05);animWave();sfb('◆ DIGILINGO ◆');
+        document.getElementById('instruction').textContent='◆ complete ◆';},200);
+    }
+    setTimeout(rc,900);
+  } else if (!isSw&&el<300&&Math.abs(dx)<10) { doTap(t.clientX,t.clientY); }
+  isSw=false; sd=null;
+});
+
+let md=false, mx=0;
+swEl.addEventListener('mousedown', e=>{md=true;mx=e.clientX;isSw=false;li=-1;sd=null;rc();stopWave();});
+swEl.addEventListener('mousemove', e=>{
+  if(!md) return; const dx=e.clientX-mx;
+  if(!sd&&Math.abs(dx)>8) sd='h'; if(sd!=='h'||dx<0) return; isSw=true;
+  const idx=gci(e.clientX); if(idx===-1||idx===li) return; li=idx;
+  const ch=gc();
+  for(let i=0;i<idx;i++){ch[i].classList.remove('active');ch[i].classList.add('visited');}
+  ch[idx].classList.remove('visited'); ch[idx].classList.add('active');
+  speak(PH[idx],0.55,1.1); animWave(); sfb(PH[idx].toUpperCase());
+});
+swEl.addEventListener('mouseup', e=>{
+  if(!md) return; const dx=e.clientX-mx;
+  if(!isSw&&Math.abs(dx)<5) doTap(e.clientX,e.clientY);
+  else if(isSw){
+    const ch=gc(),v=ch.filter(c=>c.classList.contains('visited')||c.classList.contains('active')).length;
+    if(v===ch.length){setTimeout(()=>{speak('Digilingo',0.8,1.05);sfb('◆ DIGILINGO ◆');},200);}
+    setTimeout(rc,900);
+  }
+  md=false; isSw=false; sd=null;
+});
+swEl.addEventListener('mouseleave',()=>{if(md){md=false;isSw=false;}});
+
+if (window.speechSynthesis) speechSynthesis.getVoices();
+</script>
+</body>
+</html>
