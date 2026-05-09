@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Digilingo — Language Solutions Co.</title>
+<title>Digitongue — Language Solutions Co.</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Share+Tech+Mono&display=swap');
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
@@ -37,10 +37,11 @@ body {
   align-items: center;
   gap: 20px;
   width: 100%;
-  max-width: 560px;
+  max-width: 420px;
 }
 
-.logo-unit {
+/* Geometry canvas behind badge */
+.geo-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
@@ -49,100 +50,144 @@ body {
   justify-content: center;
 }
 
-#cubeCanvas {
+#geoCanvas {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.align-glow {
-  position: absolute;
-  width: 55%;
-  height: 55%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,168,98,0.1) 0%, transparent 70%);
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 2s ease;
   z-index: 1;
 }
 
-.badge-wrap {
+/* Badge sits on top of geometry */
+.badge {
   position: relative;
   z-index: 2;
-  width: 84%;
+  width: 56%;
+  background: linear-gradient(180deg, #0d1726, #08101e);
+  border: 2.5px solid;
+  border-image: linear-gradient(135deg, #6b5030, #d4a862, #8b6840, #d4a862, #6b5030) 1;
+  padding: 16px 8px 12px;
+  touch-action: none;
+  user-select: none;
+  cursor: pointer;
   filter: drop-shadow(0 6px 32px rgba(0,0,0,0.9));
 }
 
-.badge-svg { width: 100%; height: auto; }
-
-.letter-swipe {
+/* Side diamonds */
+.badge-diamond-l, .badge-diamond-r {
   position: absolute;
-  z-index: 10;
-  cursor: pointer;
-  touch-action: none;
-  left: 8%; right: 8%;
-  top: 27%; height: 40%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d4a862;
+  font-size: 12px;
+  opacity: 0.5;
 }
+.badge-diamond-l { left: -18px; }
+.badge-diamond-r { right: -18px; }
 
-.chunks-overlay {
+.badge-top-diamond, .badge-bot-diamond {
   position: absolute;
-  z-index: 11;
-  left: 8%; right: 8%;
-  top: 27%; height: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #d4a862;
+  font-size: 10px;
+  opacity: 0.55;
+}
+.badge-top-diamond { top: -14px; }
+.badge-bot-diamond { bottom: -14px; }
+
+/* Word display */
+.word-display {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  pointer-events: none;
+  gap: 0;
+  padding: 6px 4px 10px;
+  min-height: 50px;
+  letter-spacing: 0.05em;
 }
 
 .chunk {
-  flex: 1;
-  max-width: 42px;
+  flex: 0 0 10%;
+  min-width: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  transition: all 0.1s ease;
+  gap: 4px;
 }
 
 .chunk-letter {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(16px, 4.8vw, 34px);
-  font-weight: 900;
+  width: 100%;
+  text-align: center;
+}
+
+.chunk-letter {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 700;
+  font-size: clamp(18px, 5.2vw, 36px);
   line-height: 1;
-  background: linear-gradient(175deg, #8a9aaa 0%, #c8d0d8 35%, #e8edf2 50%, #c8d0d8 65%, #8a9aaa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  opacity: 0;
-  transition: all 0.12s ease;
+  color: #b8c8d8;
+  transition: all 0.15s ease;
+}
+
+.chunk-bar {
+  height: 2px;
+  width: 60%;
+  background: rgba(212,168,98,0.2);
+  border-radius: 1px;
+  transition: all 0.15s;
+}
+
+.chunk.pressing .chunk-letter {
+  color: #6a7a8a;
+  transform: scale(0.9) translateY(4px);
+  transition: all 0.08s ease-out;
 }
 
 .chunk.active .chunk-letter {
-  background: linear-gradient(155deg, #8a9aaa 0%, #c8d0d8 12%, #f0f4f8 28%, #ffffff 50%, #f0f4f8 72%, #c8d0d8 88%, #8a9aaa 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 1;
-  transform: scale(1.15) translateY(-6px);
-  filter: drop-shadow(0 2px 14px rgba(255,255,255,0.6));
+  color: #ffffff;
+  transform: scale(1.15) translateY(-10px);
+  text-shadow: 0 0 16px rgba(255,255,255,0.9), 0 0 32px rgba(200,220,240,0.5);
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.3, 1.5);
+}
+.chunk.active .chunk-bar {
+  background: #d4a862;
+  width: 100%;
+  box-shadow: 0 0 6px rgba(212,168,98,0.6);
 }
 
 .chunk.visited .chunk-letter {
-  background: linear-gradient(175deg, #2a3a4a, #4a5a6a, #2a3a4a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0.38;
+  color: #3a4a5a;
+  transform: scale(1) translateY(0);
+  transition: all 0.18s ease-out;
 }
 
+/* Subtitle area */
+.badge-sub {
+  text-align: center;
+  margin-top: 6px;
+}
+.badge-sub-title {
+  font-family: 'Cormorant SC', serif;
+  font-size: 12px;
+  letter-spacing: 5px;
+  color: #d4a862;
+  opacity: 0.85;
+}
+.badge-sub-est {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #d4a862;
+  opacity: 0.5;
+  margin-top: 3px;
+}
+
+/* Phase bar */
 .phase-wrap {
-  width: 70%;
-  max-width: 280px;
+  width: 60%;
+  max-width: 240px;
   height: 1px;
   background: rgba(200,208,216,0.05);
-  border-radius: 1px;
   overflow: hidden;
 }
 .phase-fill {
@@ -150,17 +195,17 @@ body {
   width: 0%;
   background: linear-gradient(90deg, #8b6840, #d4a862);
   transition: width 0.08s linear;
-  box-shadow: 0 0 4px rgba(212,168,98,0.4);
 }
 
+/* Waveform */
 .waveform-strip {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: 20px;
+  height: 18px;
   width: 100%;
-  max-width: 360px;
+  max-width: 340px;
 }
 .wave-bar {
   width: 2px; height: 2px;
@@ -170,145 +215,141 @@ body {
 }
 
 .feedback {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(9px, 2.2vw, 12px);
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
   letter-spacing: 5px;
-  background: linear-gradient(90deg, #8a9aaa, #ffffff, #8a9aaa);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #d4a862;
+  text-align: center;
   text-transform: uppercase;
   opacity: 0;
-  transform: translateY(4px);
-  transition: all 0.3s ease;
+  transition: opacity 0.3s;
   min-height: 16px;
-  text-align: center;
 }
-.feedback.show { opacity: 1; transform: translateY(0); }
+.feedback.show { opacity: 1; }
 
 .instruction {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   letter-spacing: 3px;
-  color: #b88a54;
-  text-transform: uppercase;
+  color: #d4a862;
   text-align: center;
-  opacity: 0.22;
+  text-transform: uppercase;
+  opacity: 0.6;
 }
 
-.divider { display:flex; align-items:center; gap:12px; width:100%; max-width:320px; opacity:0.18; }
+.divider { display:flex; align-items:center; gap:12px; width:100%; max-width:300px; opacity:0.18; }
 .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,#b88a54,transparent); }
 .div-mark { font-size:7px; color:#b88a54; letter-spacing:2px; }
 
 .tagline { text-align:center; }
-.tagline-main { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(10px,2vw,13px); color:#8a9aaa; letter-spacing:1px; opacity:0.3; }
-.tagline-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:#b88a54; text-transform:uppercase; margin-top:4px; opacity:0.2; }
+.tagline-main { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(10px,2vw,13px); color:#c8d0d8; letter-spacing:1px; opacity:0.5; }
+.tagline-sub { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:#d4a862; text-transform:uppercase; margin-top:4px; opacity:0.35; }
 
-.ripple { position:absolute; border-radius:50%; background:rgba(200,208,216,0.03); border:1px solid rgba(200,208,216,0.08); transform:scale(0); animation:ripOut 0.8s ease-out forwards; pointer-events:none; z-index:20; }
-@keyframes ripOut { to { transform:scale(6); opacity:0; } }
+/* Mode menu */
+.mode-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(212,168,98,0.2);
+}
+
+.mode-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #8b6840;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: 1px solid rgba(212,168,98,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-btn.active {
+  color: #d4a862;
+  border-color: #d4a862;
+  background: rgba(212,168,98,0.08);
+  box-shadow: 0 0 8px rgba(212,168,98,0.2);
+}
+
+.mode-divider {
+  color: rgba(212,168,98,0.25);
+  font-size: 8px;
+}
 </style>
 </head>
 <body>
 
 <canvas id="starCanvas"></canvas>
 
+<div class="epigraph" style="text-align:center;margin-bottom:8px;opacity:0.35;">
+  <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(10px,2.5vw,14px);color:#c8d0d8;letter-spacing:2px;">
+    "In the beginning was the Word"
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:#d4a862;margin-top:4px;opacity:0.6;">
+    JOHN 1:1
+  </div>
+</div>
 <div class="scene">
-  <div class="logo-unit" id="logoUnit">
-    <canvas id="cubeCanvas"></canvas>
-    <div class="align-glow" id="alignGlow"></div>
+  <div class="geo-wrap" id="geoWrap">
+    <canvas id="geoCanvas"></canvas>
 
-    <div class="badge-wrap">
-      <svg class="badge-svg" viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="aF" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#0d1726"/><stop offset="100%" style="stop-color:#08101e"/>
-          </linearGradient>
-          <linearGradient id="bB" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#6b5030"/><stop offset="28%" style="stop-color:#d4a862"/>
-            <stop offset="50%" style="stop-color:#8b6840"/><stop offset="72%" style="stop-color:#d4a862"/>
-            <stop offset="100%" style="stop-color:#6b5030"/>
-          </linearGradient>
-          <linearGradient id="aT" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#8a9aaa"/><stop offset="30%" style="stop-color:#c8d0d8"/>
-            <stop offset="50%" style="stop-color:#e8edf2"/><stop offset="70%" style="stop-color:#c8d0d8"/>
-            <stop offset="100%" style="stop-color:#8a9aaa"/>
-          </linearGradient>
-          <linearGradient id="bT" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#8b6840"/><stop offset="50%" style="stop-color:#d4a862"/>
-            <stop offset="100%" style="stop-color:#8b6840"/>
-          </linearGradient>
-        </defs>
+    <div class="badge" id="badge">
+      <span class="badge-top-diamond">◆</span>
+      <span class="badge-diamond-l">◆</span>
+      <span class="badge-diamond-r">◆</span>
+      <span class="badge-bot-diamond">◆</span>
 
-        <path d="M 40 50 L 40 230 Q 40 250 60 250 L 500 250 Q 520 250 520 230 L 520 50 Q 520 30 500 30 L 280 20 L 60 30 Q 40 30 40 50 Z" fill="url(#aF)" stroke="url(#bB)" stroke-width="2.5"/>
-        <path d="M 52 60 L 52 222 Q 52 238 68 238 L 492 238 Q 508 238 508 222 L 508 60 Q 508 44 492 44 L 280 36 L 68 44 Q 52 44 52 60 Z" fill="none" stroke="url(#bB)" stroke-width="0.7" opacity="0.25"/>
+      <div class="word-display" id="wordDisplay">
+        <div class="chunk"><div class="chunk-letter">D</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">I</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">G</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">I</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">T</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">O</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">N</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">G</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">U</div><div class="chunk-bar"></div></div>
+        <div class="chunk"><div class="chunk-letter">E</div><div class="chunk-bar"></div></div>
+      </div>
 
-        <g stroke="url(#bB)" fill="none" stroke-width="1" opacity="0.45">
-          <path d="M 52 60 Q 52 44 68 44"/><circle cx="52" cy="60" r="2.5" fill="url(#bB)"/>
-          <path d="M 508 60 Q 508 44 492 44"/><circle cx="508" cy="60" r="2.5" fill="url(#bB)"/>
-          <path d="M 52 222 Q 52 238 68 238"/><circle cx="52" cy="222" r="2.5" fill="url(#bB)"/>
-          <path d="M 508 222 Q 508 238 492 238"/><circle cx="508" cy="222" r="2.5" fill="url(#bB)"/>
-        </g>
-
-        <polygon points="40,140 49,153 40,166 31,153" fill="url(#bB)" opacity="0.45"/>
-        <polygon points="520,140 529,153 520,166 511,153" fill="url(#bB)" opacity="0.45"/>
-        <polygon points="280,20 287,28 280,36 273,28" fill="url(#bB)" opacity="0.55"/>
-        <polygon points="280,244 287,252 280,260 273,252" fill="url(#bB)" opacity="0.55"/>
-        <line x1="62" y1="150" x2="498" y2="150" stroke="url(#bB)" stroke-width="0.5" opacity="0.16"/>
-
-        <g stroke="url(#bB)" fill="none" stroke-width="0.9" opacity="0.25">
-          <path d="M 263 153 Q 272 149 280 153 Q 288 149 297 153"/>
-          <path d="M 263 153 L 260 161 Q 271 157 280 161 Q 289 157 300 161 L 297 153"/>
-          <line x1="280" y1="153" x2="280" y2="161"/>
-        </g>
-
-        <text x="280" y="142" text-anchor="middle" font-family="Cinzel, serif" font-weight="900" font-size="70" letter-spacing="3" fill="url(#aT)">DIGILINGO</text>
-        <text x="280" y="186" text-anchor="middle" font-family="Cinzel, serif" font-weight="400" font-size="13" letter-spacing="6" fill="url(#bT)" opacity="0.65">LANGUAGE SOLUTIONS CO.</text>
-
-        <g opacity="0.36">
-          <line x1="172" y1="201" x2="228" y2="201" stroke="url(#bB)" stroke-width="0.7"/>
-          <polygon points="236,198 240,201 236,204 232,201" fill="url(#bB)"/>
-          <text x="280" y="205" text-anchor="middle" font-family="Cinzel, serif" font-size="10" letter-spacing="4" fill="url(#bT)">EST. 2024</text>
-          <polygon points="324,198 328,201 324,204 320,201" fill="url(#bB)"/>
-          <line x1="332" y1="201" x2="388" y2="201" stroke="url(#bB)" stroke-width="0.7"/>
-        </g>
-
-        <g stroke="url(#bB)" stroke-width="0.5" fill="none" opacity="0.12">
-          <path d="M 162 224 Q 178 217 194 224 Q 210 231 226 224 Q 242 217 258 224 Q 274 231 280 224 Q 286 217 302 224 Q 318 231 334 224 Q 350 217 366 224 Q 382 231 398 224"/>
-        </g>
-      </svg>
-
-      <div class="letter-swipe" id="letterSwipe"></div>
-      <div class="chunks-overlay">
-        <div class="chunk"><div class="chunk-letter">D</div></div>
-        <div class="chunk"><div class="chunk-letter">I</div></div>
-        <div class="chunk"><div class="chunk-letter">G</div></div>
-        <div class="chunk"><div class="chunk-letter">I</div></div>
-        <div class="chunk"><div class="chunk-letter">L</div></div>
-        <div class="chunk"><div class="chunk-letter">I</div></div>
-        <div class="chunk"><div class="chunk-letter">N</div></div>
-        <div class="chunk"><div class="chunk-letter">G</div></div>
-        <div class="chunk"><div class="chunk-letter">O</div></div>
+      <div class="badge-sub">
+        <div class="badge-sub-title" style="white-space:nowrap;font-size:10px;letter-spacing:3px;">LANGUAGE SOLUTIONS CO.</div>
+        <div class="badge-sub-est">◆ EST. 2024 ◆</div>
+      <div class="mode-menu">
+        <button class="mode-btn" id="btnLetter">LETTER</button>
+        <span class="mode-divider">◆</span>
+        <button class="mode-btn active" id="btnSyllable">SYLLABLE</button>
+        <span class="mode-divider">◆</span>
+        <button class="mode-btn" id="btnWord">WORD</button>
+      </div>
       </div>
     </div>
   </div>
 
   <div class="phase-wrap"><div class="phase-fill" id="phaseFill"></div></div>
   <div class="waveform-strip" id="waveform"></div>
-  <div class="feedback" id="feedback">◆ DIGILINGO ◆</div>
-  <div class="instruction" id="instruction">swipe the letters →</div>
+  <div class="feedback" id="feedback"></div>
+  <div class="instruction" id="instruction">tap or swipe right →</div>
 
   <div class="divider">
     <div class="div-line"></div><div class="div-mark">◆ ◆ ◆</div><div class="div-line"></div>
   </div>
 
   <div class="tagline">
-    <div class="tagline-main">"Where every finger finds its word."</div>
+    <div class="tagline-main">"Where every tongue finds its word."</div>
     <div class="tagline-sub">◆ Patent Pending · Language Solutions Co. ◆</div>
   </div>
 </div>
 
 <script>
-// ── STAR FIELD ────────────────────────────────────────────────────────────────
+// ── STARS ─────────────────────────────────────────────────────────────────────
 const sc = document.getElementById('starCanvas');
 const sctx = sc.getContext('2d');
 let stars = [];
@@ -317,27 +358,24 @@ function initStars() {
   sc.width = window.innerWidth;
   sc.height = window.innerHeight;
   stars = [];
-  const n = Math.floor((sc.width * sc.height) / 5500);
+  const n = Math.floor((sc.width * sc.height) / 6000);
   for (let i = 0; i < n; i++) {
     stars.push({
-      x: Math.random() * sc.width,
-      y: Math.random() * sc.height,
-      r: Math.random() * 0.7 + 0.1,
-      a: Math.random() * 0.18 + 0.03,
-      phase: Math.random() * Math.PI * 2,
-      spd: Math.random() * 0.0012 + 0.0003
+      x: Math.random()*sc.width, y: Math.random()*sc.height,
+      r: Math.random()*0.7+0.1, a: Math.random()*0.18+0.03,
+      phase: Math.random()*Math.PI*2, spd: Math.random()*0.001+0.0003
     });
   }
 }
 
 function drawStars(dt) {
-  sctx.clearRect(0, 0, sc.width, sc.height);
+  sctx.clearRect(0,0,sc.width,sc.height);
   stars.forEach(s => {
     s.phase += s.spd * dt;
-    const alpha = s.a * (0.5 + 0.5 * Math.sin(s.phase));
+    const alpha = s.a * (0.5 + 0.5*Math.sin(s.phase));
     sctx.beginPath();
-    sctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    sctx.fillStyle = `rgba(210, 220, 232, ${alpha})`;
+    sctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    sctx.fillStyle = `rgba(210,220,232,${alpha})`;
     sctx.fill();
   });
 }
@@ -345,272 +383,428 @@ function drawStars(dt) {
 initStars();
 window.addEventListener('resize', initStars);
 
-// ── 4-PLATE HARMONIC METATRON'S CUBE ─────────────────────────────────────────
-//
-// PLATE 1 — BOTTOM (Structure): Hex + spokes + inner subdivisions
-//   CCW, speed S
-//
-// PLATE 2 — CENTER (Modulation): Full triangle network
-//   CW, speed 2S — hidden mechanism, lower opacity
-//
-// PLATE 3 — TOP (Energy Overlay): Only unique connections
-//   No hex, no spokes — cross connections + star tips only
-//   CW, speed S
-//
-// PLATE 4 — OUTER RING: Static, 12 tick positions
+// ── GEOMETRY ──────────────────────────────────────────────────────────────────
+const gc_el = document.getElementById('geoCanvas');
+const gctx = gc_el.getContext('2d');
 
-const cc = document.getElementById('cubeCanvas');
-const cctx = cc.getContext('2d');
-
-const S  = 0.000030;  // base rad/ms — very slow
+const S  = 0.000030;
 const S2 = S * 2;
+const S3 = S * 1.35;
+let a1=0, a2=0, a3=0;
 
-let a1 = 0;   // bottom CCW
-let a2 = 0;   // center CW 2x
-let a3 = 0;   // top CW
-
-function resizeCC() {
-  const u = document.getElementById('logoUnit');
-  cc.width = u.offsetWidth;
-  cc.height = u.offsetHeight;
+function resizeGeo() {
+  const wrap = document.getElementById('geoWrap');
+  const size = wrap.offsetWidth;
+  gc_el.width  = size;
+  gc_el.height = size;
+  gc_el.style.width  = size + 'px';
+  gc_el.style.height = size + 'px';
 }
 
 function drawBottom(cx, cy, R, col) {
-  const s = cc.width / 300;
-  cctx.save();
-  cctx.translate(cx, cy);
-  cctx.strokeStyle = col;
-  cctx.fillStyle = col;
-
-  const outerPts = [], innerPts = [];
-  for (let i = 0; i < 6; i++) {
-    const a = (i/6)*Math.PI*2 - Math.PI/6;
-    outerPts.push([Math.cos(a)*R*s, Math.sin(a)*R*s]);
-    innerPts.push([Math.cos(a)*R*0.5*s, Math.sin(a)*R*0.5*s]);
+  const s = gc_el.width / 300;
+  gctx.save(); gctx.translate(cx,cy); gctx.strokeStyle=col; gctx.fillStyle=col;
+  const op=[], ip=[];
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/6;
+    op.push([Math.cos(a)*R*s,Math.sin(a)*R*s]);
+    ip.push([Math.cos(a)*R*0.5*s,Math.sin(a)*R*0.5*s]);
   }
-
-  // Outer hexagon
-  cctx.lineWidth = 1.0 * s;
-  cctx.beginPath();
-  outerPts.forEach(([x,y],i) => i===0 ? cctx.moveTo(x,y) : cctx.lineTo(x,y));
-  cctx.closePath(); cctx.stroke();
-
-  // Spokes
-  cctx.lineWidth = 0.6 * s;
-  outerPts.forEach(([x,y]) => {
-    cctx.beginPath(); cctx.moveTo(0,0); cctx.lineTo(x,y); cctx.stroke();
-  });
-
-  // Inner hexagon
-  cctx.lineWidth = 0.6 * s;
-  cctx.beginPath();
-  innerPts.forEach(([x,y],i) => i===0 ? cctx.moveTo(x,y) : cctx.lineTo(x,y));
-  cctx.closePath(); cctx.stroke();
-
-  // Facet lines inner to outer
-  cctx.lineWidth = 0.5 * s;
-  for (let i = 0; i < 6; i++) {
-    const [ix,iy] = innerPts[i];
-    cctx.beginPath(); cctx.moveTo(ix,iy); cctx.lineTo(outerPts[i][0],outerPts[i][1]); cctx.stroke();
-    cctx.beginPath(); cctx.moveTo(ix,iy); cctx.lineTo(outerPts[(i+1)%6][0],outerPts[(i+1)%6][1]); cctx.stroke();
+  gctx.lineWidth=1.8*s; gctx.beginPath();
+  op.forEach(([x,y],i)=>i===0?gctx.moveTo(x,y):gctx.lineTo(x,y));
+  gctx.closePath(); gctx.stroke();
+  gctx.lineWidth=1.1*s;
+  op.forEach(([x,y])=>{gctx.beginPath();gctx.moveTo(0,0);gctx.lineTo(x,y);gctx.stroke();});
+  gctx.lineWidth=1.0*s; gctx.beginPath();
+  ip.forEach(([x,y],i)=>i===0?gctx.moveTo(x,y):gctx.lineTo(x,y));
+  gctx.closePath(); gctx.stroke();
+  gctx.lineWidth=0.8*s;
+  for(let i=0;i<6;i++){
+    const [ix,iy]=ip[i];
+    gctx.beginPath();gctx.moveTo(ix,iy);gctx.lineTo(op[i][0],op[i][1]);gctx.stroke();
+    gctx.beginPath();gctx.moveTo(ix,iy);gctx.lineTo(op[(i+1)%6][0],op[(i+1)%6][1]);gctx.stroke();
   }
-
-  outerPts.forEach(([x,y]) => { cctx.beginPath(); cctx.arc(x,y,1.3*s,0,Math.PI*2); cctx.fill(); });
-  innerPts.forEach(([x,y]) => { cctx.beginPath(); cctx.arc(x,y,1.0*s,0,Math.PI*2); cctx.fill(); });
-  cctx.beginPath(); cctx.arc(0,0,1.5*s,0,Math.PI*2); cctx.fill();
-
-  cctx.restore();
+  op.forEach(([x,y])=>{gctx.beginPath();gctx.arc(x,y,1.3*s,0,Math.PI*2);gctx.fill();});
+  ip.forEach(([x,y])=>{gctx.beginPath();gctx.arc(x,y,1.0*s,0,Math.PI*2);gctx.fill();});
+  gctx.beginPath();gctx.arc(0,0,1.5*s,0,Math.PI*2);gctx.fill();
+  gctx.restore();
 }
 
 function drawCenter(cx, cy, R, col) {
-  const s = cc.width / 300;
-  cctx.save();
-  cctx.translate(cx, cy);
-  cctx.strokeStyle = col;
-  cctx.fillStyle = col;
-  cctx.lineWidth = 0.38 * s;
-
-  const nodes = [[0,0]];
-  for (let i = 0; i < 6; i++) {
-    const a = (i/6)*Math.PI*2 - Math.PI/2;
-    nodes.push([Math.cos(a)*R*s, Math.sin(a)*R*s]);
+  const s = gc_el.width / 300;
+  gctx.save(); gctx.translate(cx,cy);
+  gctx.strokeStyle = col;
+  gctx.lineWidth = 1.4 * s;
+  const cr = R * s;
+  gctx.beginPath(); gctx.arc(0,0,cr,0,Math.PI*2); gctx.stroke();
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/2;
+    gctx.beginPath(); gctx.arc(Math.cos(a)*cr,Math.sin(a)*cr,cr,0,Math.PI*2); gctx.stroke();
   }
-
-  for (let i = 0; i < nodes.length; i++)
-    for (let j = i+1; j < nodes.length; j++) {
-      cctx.beginPath();
-      cctx.moveTo(nodes[i][0], nodes[i][1]);
-      cctx.lineTo(nodes[j][0], nodes[j][1]);
-      cctx.stroke();
-    }
-
-  nodes.forEach(([x,y],i) => {
-    cctx.beginPath(); cctx.arc(x,y,(i===0?1.4:1.0)*s,0,Math.PI*2); cctx.fill();
-  });
-
-  cctx.restore();
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/2;
+    gctx.beginPath(); gctx.arc(Math.cos(a)*cr*2,Math.sin(a)*cr*2,cr,0,Math.PI*2); gctx.stroke();
+  }
+  gctx.restore();
 }
 
 function drawTop(cx, cy, R, col) {
-  const s = cc.width / 300;
-  cctx.save();
-  cctx.translate(cx, cy);
-  cctx.strokeStyle = col;
-  cctx.fillStyle = col;
-  cctx.lineWidth = 0.6 * s;
-
-  const outer = [], tips = [];
-  for (let i = 0; i < 6; i++) {
-    const a = (i/6)*Math.PI*2 - Math.PI/6;
-    outer.push([Math.cos(a)*R*s, Math.sin(a)*R*s]);
-    tips.push([Math.cos(a)*R*1.42*s, Math.sin(a)*R*1.42*s]);
+  const s = gc_el.width / 300;
+  gctx.save(); gctx.translate(cx,cy); gctx.strokeStyle=col; gctx.fillStyle=col; gctx.lineWidth=1.1*s;
+  const outer=[], tips=[];
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/6;
+    outer.push([Math.cos(a)*R*s,Math.sin(a)*R*s]);
+    tips.push([Math.cos(a)*R*1.42*s,Math.sin(a)*R*1.42*s]);
   }
-
-  // Cross connections only (no adjacent — those belong to bottom hex)
-  for (let i = 0; i < 6; i++) {
-    const j = (i+2)%6;
-    cctx.beginPath(); cctx.moveTo(outer[i][0],outer[i][1]); cctx.lineTo(outer[j][0],outer[j][1]); cctx.stroke();
-    if (i < 3) {
-      cctx.beginPath(); cctx.moveTo(outer[i][0],outer[i][1]); cctx.lineTo(outer[i+3][0],outer[i+3][1]); cctx.stroke();
-    }
+  for(let i=0;i<6;i++){
+    const j=(i+2)%6;
+    gctx.beginPath();gctx.moveTo(outer[i][0],outer[i][1]);gctx.lineTo(outer[j][0],outer[j][1]);gctx.stroke();
+    if(i<3){gctx.beginPath();gctx.moveTo(outer[i][0],outer[i][1]);gctx.lineTo(outer[i+3][0],outer[i+3][1]);gctx.stroke();}
   }
-
-  // Star tip connections
-  for (let i = 0; i < 6; i++) {
-    cctx.beginPath(); cctx.moveTo(tips[i][0],tips[i][1]); cctx.lineTo(outer[(i+5)%6][0],outer[(i+5)%6][1]); cctx.stroke();
-    cctx.beginPath(); cctx.moveTo(tips[i][0],tips[i][1]); cctx.lineTo(outer[(i+1)%6][0],outer[(i+1)%6][1]); cctx.stroke();
+  for(let i=0;i<6;i++){
+    gctx.beginPath();gctx.moveTo(tips[i][0],tips[i][1]);gctx.lineTo(outer[(i+5)%6][0],outer[(i+5)%6][1]);gctx.stroke();
+    gctx.beginPath();gctx.moveTo(tips[i][0],tips[i][1]);gctx.lineTo(outer[(i+1)%6][0],outer[(i+1)%6][1]);gctx.stroke();
   }
-
-  tips.forEach(([x,y]) => { cctx.beginPath(); cctx.arc(x,y,1.2*s,0,Math.PI*2); cctx.fill(); });
-  outer.forEach(([x,y]) => { cctx.beginPath(); cctx.arc(x,y,0.9*s,0,Math.PI*2); cctx.fill(); });
-
-  cctx.restore();
+  tips.forEach(([x,y])=>{gctx.beginPath();gctx.arc(x,y,1.2*s,0,Math.PI*2);gctx.fill();});
+  outer.forEach(([x,y])=>{gctx.beginPath();gctx.arc(x,y,0.9*s,0,Math.PI*2);gctx.fill();});
+  gctx.restore();
 }
 
 function drawRing(cx, cy, R) {
-  const s = cc.width / 300;
-  cctx.save();
-  cctx.translate(cx, cy);
-  cctx.strokeStyle = 'rgba(180,138,70,0.16)';
-  cctx.lineWidth = 0.4 * s;
-  cctx.beginPath(); cctx.arc(0,0,R*s,0,Math.PI*2); cctx.stroke();
-
-  for (let i = 0; i < 12; i++) {
-    const a = (i/12)*Math.PI*2 - Math.PI/2;
-    const major = i%3===0;
-    const r1 = R*(major?0.91:0.95)*s;
-    cctx.lineWidth = (major?0.8:0.35)*s;
-    cctx.beginPath();
-    cctx.moveTo(Math.cos(a)*r1, Math.sin(a)*r1);
-    cctx.lineTo(Math.cos(a)*R*s, Math.sin(a)*R*s);
-    cctx.stroke();
-    if (major) {
-      cctx.fillStyle = 'rgba(212,168,98,0.45)';
-      cctx.beginPath(); cctx.arc(Math.cos(a)*R*s, Math.sin(a)*R*s, 1.5*s, 0, Math.PI*2); cctx.fill();
+  const s = gc_el.width / 300;
+  gctx.save(); gctx.translate(cx,cy);
+  gctx.strokeStyle='rgba(192,148,75,0.45)'; gctx.lineWidth=0.5*s;
+  gctx.beginPath(); gctx.arc(0,0,R*s,0,Math.PI*2); gctx.stroke();
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2-Math.PI/2;
+    const major=i%3===0;
+    const r1=R*(major?0.91:0.95)*s;
+    gctx.lineWidth=(major?0.9:0.4)*s;
+    gctx.beginPath();
+    gctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);
+    gctx.lineTo(Math.cos(a)*R*s,Math.sin(a)*R*s);
+    gctx.stroke();
+    if(major){
+      gctx.fillStyle='rgba(212,168,98,0.45)';
+      gctx.beginPath();gctx.arc(Math.cos(a)*R*s,Math.sin(a)*R*s,1.5*s,0,Math.PI*2);gctx.fill();
     }
   }
-  cctx.restore();
+  gctx.restore();
 }
 
 function getAlignment() {
-  const d = Math.abs((a1 + a3) % (Math.PI/3));
-  const n = d < Math.PI/6 ? d : Math.PI/3 - d;
-  return Math.max(0, 1 - n/(Math.PI/18));
+  const d=Math.abs((a1+a3)%(Math.PI/3));
+  const n=d<Math.PI/6?d:Math.PI/3-d;
+  return Math.max(0,1-n/(Math.PI/18));
 }
 
-let lastT = 0;
+const alignGlow = { el: null };
+const phaseFillEl = document.getElementById('phaseFill');
+let lastT=0;
 
 function frame(ts) {
-  const dt = Math.min(ts - lastT, 50);
-  lastT = ts;
+  const dt=Math.min(ts-lastT,50); lastT=ts;
+  a1-=S*dt; a2+=S2*dt; a3-=S3*dt;
 
-  a1 -= S  * dt;
-  a2 += S2 * dt;
-  a3 += S  * dt;
+  gctx.clearRect(0,0,gc_el.width,gc_el.height);
+  const cx=gc_el.width/2, cy=gc_el.height/2;
+  const R=gc_el.width*0.23, Rr=gc_el.width*0.34;
 
-  cctx.clearRect(0, 0, cc.width, cc.height);
+  const al=getAlignment();
+  const b=al*0.14;
+  const c1=`rgba(188,138,65,${0.82+b})`;
+  const c3=`rgba(200,158,80,${0.78+b})`;
 
-  const cx = cc.width/2, cy = cc.height/2;
-  const R  = cc.width * 0.27;
-  const Rc = cc.width * 0.17;
-  const Rr = cc.width * 0.46;
+  gctx.save();gctx.translate(cx,cy);gctx.rotate(a1);gctx.translate(-cx,-cy);
+  drawBottom(cx,cy,R,c1); gctx.restore();
 
-  const al = getAlignment();
-  const b  = al * 0.14;
+  gctx.save();gctx.translate(cx,cy);gctx.rotate(a3);gctx.translate(-cx,-cy);
+  drawTop(cx,cy,R,c3); gctx.restore();
 
-  const c1 = `rgba(170,122,52,${0.22+b})`;
-  const c2 = `rgba(212,168,98,${0.09+b*0.4})`;
-  const c3 = `rgba(148,112,50,${0.17+b})`;
+  gctx.save();gctx.translate(cx,cy);gctx.rotate(a2);gctx.translate(-cx,-cy);
+  drawCenter(cx,cy,gc_el.width*0.10,`rgba(212,168,98,${0.55+b*0.3})`); gctx.restore();
 
-  cctx.save(); cctx.translate(cx,cy); cctx.rotate(a1); cctx.translate(-cx,-cy);
-  drawBottom(cx, cy, R, c1);
-  cctx.restore();
-
-  cctx.save(); cctx.translate(cx,cy); cctx.rotate(a2); cctx.translate(-cx,-cy);
-  drawCenter(cx, cy, Rc, c2);
-  cctx.restore();
-
-  cctx.save(); cctx.translate(cx,cy); cctx.rotate(a3); cctx.translate(-cx,-cy);
-  drawTop(cx, cy, R, c3);
-  cctx.restore();
-
-  drawRing(cx, cy, Rr);
-
-  document.getElementById('alignGlow').style.opacity = (al * 0.8).toString();
-  document.getElementById('phaseFill').style.width = (al * 100) + '%';
+  drawRing(cx,cy,Rr);
+  const tw = al*100; if(Math.abs(parseFloat(phaseFillEl.style.width||'0')-tw)>0.5) phaseFillEl.style.width=tw+'%';
 
   drawStars(dt);
   requestAnimationFrame(frame);
 }
 
-resizeCC();
-window.addEventListener('resize', resizeCC);
+resizeGeo();
+window.addEventListener('resize', resizeGeo);
 requestAnimationFrame(frame);
 
 // ── WAVEFORM ──────────────────────────────────────────────────────────────────
 const wf = document.getElementById('waveform');
-for (let i = 0; i < 44; i++) {
-  const b = document.createElement('div'); b.className = 'wave-bar'; wf.appendChild(b);
-}
-let wvActive = false, wvTimer = null;
+for(let i=0;i<40;i++){const b=document.createElement('div');b.className='wave-bar';wf.appendChild(b);}
+let wvActive=false, wvTimer=null;
 
 function animWave() {
-  clearTimeout(wvTimer); wvActive = true;
-  const bars = [...document.querySelectorAll('.wave-bar')];
-  let f = 0;
-  function tick() {
-    if (!wvActive) return;
-    bars.forEach((b,i) => {
-      b.style.height = (2+Math.abs(Math.sin(f*0.25+i*0.35))*12+Math.random()*2)+'px';
-      b.style.background = 'linear-gradient(180deg,#e8edf2,#8a9aaa)';
-      b.style.opacity = '0.35';
+  clearTimeout(wvTimer); wvActive=true;
+  const bars=[...document.querySelectorAll('.wave-bar')];
+  let f=0;
+  function tick(){
+    if(!wvActive)return;
+    bars.forEach((b,i)=>{
+      b.style.height=(2+Math.abs(Math.sin(f*0.25+i*0.35))*12+Math.random()*2)+'px';
+      b.style.background='linear-gradient(180deg,#e8edf2,#8a9aaa)';
+      b.style.opacity='0.35';
     });
-    f++; if (f < 55) requestAnimationFrame(tick); else stopWave();
+    f++; if(f<55)requestAnimationFrame(tick); else stopWave();
   }
   requestAnimationFrame(tick);
-  wvTimer = setTimeout(stopWave, 800);
+  wvTimer=setTimeout(stopWave,800);
+}
+function stopWave(){
+  wvActive=false;
+  document.querySelectorAll('.wave-bar').forEach(b=>{b.style.height='2px';b.style.background='rgba(200,208,216,0.07)';b.style.opacity='1';});
 }
 
-function stopWave() {
-  wvActive = false;
-  document.querySelectorAll('.wave-bar').forEach(b => {
-    b.style.height = '2px';
-    b.style.background = 'rgba(200,208,216,0.07)';
-    b.style.opacity = '1';
+// ── SWIPE MECHANIC ────────────────────────────────────────────────────────────
+// ── MODES ─────────────────────────────────────────────────────────────────────
+// LETTER mode: 10 chunks — D I G I T O N G U E
+// SYLLABLE mode: 3 chunks — DIG | I | TONGUE
+// WORD mode: 1 chunk — DIGITONGUE
+
+const MODES = {
+  letter: {
+    chunks: ['D','I','G','I','T','O','N','G','U','E'],
+    sounds: ['d','ih','jeh','ee','t','uh','n','guh','',''],
+    label: 'LETTER'
+  },
+  syllable: {
+    chunks: ['DIH','JIH','TONGUE'],
+    audio: ['syl_dig','syl_i','syl_tongue'],
+    sounds: ['syl_dih', 'syl_jih', 'syl_tongue'],
+    label: 'SYLLABLE'
+  },
+  word: {
+    chunks: ['DIGITONGUE'],
+    sounds: ['syl_dih', 'syl_jih', 'syl_tongue'],
+    label: 'WORD'
+  }
+};
+
+let currentMode = 'syllable';
+
+function buildChunks(mode) {
+  const wd = document.getElementById('wordDisplay');
+  wd.innerHTML = '';
+  const data = MODES[mode];
+  data.chunks.forEach((letter, i) => {
+    const chunk = document.createElement('div');
+    chunk.className = 'chunk';
+    chunk.style.flex = mode === 'letter' ? '0 0 10%' : '1';
+    const cl = document.createElement('div');
+    cl.className = 'chunk-letter';
+    if (mode !== 'letter') {
+      cl.style.fontSize = 'clamp(14px, 4vw, 28px)';
+      cl.style.letterSpacing = '0.1em';
+    }
+    cl.textContent = letter;
+    const bar = document.createElement('div');
+    bar.className = 'chunk-bar';
+    chunk.appendChild(cl);
+    chunk.appendChild(bar);
+    wd.appendChild(chunk);
   });
 }
 
-// ── PHONEME INTERACTION ────────────────────────────────────────────────────────
-const PH = ['d','ih','g','ih','l','ih','n','g','oh'];
-
-function speak(txt, rate=0.6, pitch=1.05) {
-  if (!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(txt);
-  u.rate = rate; u.pitch = pitch; u.volume = 1;
-  const v = speechSynthesis.getVoices().find(v => v.lang.startsWith('en'));
-  if (v) u.voice = v;
-  speechSynthesis.speak(u);
+function setMode(mode) {
+  currentMode = mode;
+  buildChunks(mode);
+  rc();
+  if(curAudio){try{curAudio.pause();curAudio.currentTime=0;}catch(e){}}
+  document.getElementById('btnLetter').classList.toggle('active', mode==='letter');
+  document.getElementById('btnSyllable').classList.toggle('active', mode==='syllable');
+  document.getElementById('btnWord').classList.toggle('active', mode==='word');
+  document.getElementById('instruction').textContent = mode==='word' ? 'tap the word →' : 'tap or swipe right →';
 }
 
-let tx0=0,ty0=0,t0=0,isSw=false,sd=null,
+document.getElementById('btnLetter').addEventListener('click', e=>{e.stopPropagation();speak('btn_letters');setMode('letter');});
+document.getElementById('btnSyllable').addEventListener('click', e=>{
+  e.stopPropagation();
+  speak('btn_syllables');
+  setMode('syllable');
+});
+document.getElementById('btnWord').addEventListener('click', e=>{
+  e.stopPropagation();
+  speak('btn_wholeword');
+  setMode('word');
+});
+
+// Play a sound or sequence of sounds
+function playSequence(sounds, idx=0) {
+  if (typeof sounds === 'string') { speak(sounds); return; }
+  if (!Array.isArray(sounds)) { speak(sounds); return; }
+  if (idx >= sounds.length) return;
+  const key = sounds[idx];
+  if (!key) { playSequence(sounds, idx+1); return; }
+  const src = DT_AU[key];
+  if (!src) { playSequence(sounds, idx+1); return; }
+  const a = new Audio(src);
+  a.volume = 1.0;
+  a.onended = () => playSequence(sounds, idx+1);
+  a.play().catch(()=> playSequence(sounds, idx+1));
+  curAudio = a; curKey = key;
+}
+
+const PH = ['d','ih','jeh','ee','t','uh','n','guh','',''];
+
+const DT_AU = {};
+DT_AU['d'] = 'https://tobias-blockhead.github.io/Digilingo/audio/d.mp3';
+DT_AU['digitongue'] = 'https://tobias-blockhead.github.io/Digilingo/audio/digitongue.mp3';
+DT_AU['guh'] = 'https://tobias-blockhead.github.io/Digilingo/audio/guh.mp3';
+DT_AU['ih'] = 'https://tobias-blockhead.github.io/Digilingo/audio/ih.mp3';
+DT_AU['ih2'] = 'https://tobias-blockhead.github.io/Digilingo/audio/ih2.mp3';
+DT_AU['jeh'] = 'https://tobias-blockhead.github.io/Digilingo/audio/jeh.mp3';
+DT_AU['n'] = 'https://tobias-blockhead.github.io/Digilingo/audio/n.mp3';
+DT_AU['oh'] = 'https://tobias-blockhead.github.io/Digilingo/audio/oh.mp3';
+DT_AU['t'] = 'https://tobias-blockhead.github.io/Digilingo/audio/t.mp3';
+DT_AU['yoo'] = 'https://tobias-blockhead.github.io/Digilingo/audio/yoo.mp3';
+DT_AU['uh'] = 'https://tobias-blockhead.github.io/Digilingo/audio/uh.mp3';
+DT_AU['btn_letters'] = 'https://tobias-blockhead.github.io/Digilingo/audio/btn_letters.mp3';
+DT_AU['btn_syllables'] = 'https://tobias-blockhead.github.io/Digilingo/audio/btn_syllables.mp3';
+DT_AU['btn_wholeword'] = 'https://tobias-blockhead.github.io/Digilingo/audio/btn_wholeword.mp3';
+DT_AU['syl_dig'] = 'https://tobias-blockhead.github.io/Digilingo/audio/syl_dig.mp3';
+DT_AU['syl_i'] = 'https://tobias-blockhead.github.io/Digilingo/audio/syl_i.mp3';
+DT_AU['syl_tongue'] = 'https://tobias-blockhead.github.io/Digilingo/audio/syl_tongue.mp3';
+DT_AU['syl_dih'] = 'https://tobias-blockhead.github.io/Digilingo/audio/syl_dih.mp3';
+DT_AU['syl_jih'] = 'https://tobias-blockhead.github.io/Digilingo/audio/syl_jih.mp3';
+DT_AU['ee'] = 'https://tobias-blockhead.github.io/Digilingo/audio/ee.mp3';
+
+// Phoneme map D-I-G-I-T-O-N-G-U-E
+const PH_KEYS = ['d','ih','jeh','ih2','t','oh','n','guh','yoo',''];
+
+let curAudio = null;
+let curKey = null;
+function speak(key) {
+  if (!key) return;
+  const src = DT_AU[key];
+  if (!src) return;
+  // Only interrupt if same sound is already playing
+  if (curAudio && curKey === key) {
+    try { curAudio.pause(); curAudio.currentTime = 0; } catch(e){}
+  }
+  curKey = key;
+  const a = new Audio(src);
+  a.volume = 1.0;
+  a.play().catch(e => console.log('Audio error:', e));
+  curAudio = a;
+}
+
+function gc(){return[...document.querySelectorAll('.chunk')];}
+function rc(){gc().forEach(c=>c.classList.remove('active','pressing','visited'));}
+
+let fbt=null;
+function fb(txt){
+  const el=document.getElementById('feedback');
+  el.textContent=txt;el.classList.add('show');
+  clearTimeout(fbt);fbt=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+function getIdx(x){
+  const ch=gc();
+  for(let i=0;i<ch.length;i++){
+    const r=ch[i].getBoundingClientRect();
+    if(x>=r.left-4&&x<=r.right+4)return i;
+  }
+  const rs=ch.map(c=>c.getBoundingClientRect());
+  if(x<rs[0].left)return 0;
+  if(x>rs[rs.length-1].right)return ch.length-1;
+  return -1;
+}
+
+function activate(idx){
+  const ch=gc();
+  if(idx<0||idx>=ch.length)return;
+  for(let i=0;i<idx;i++){ch[i].classList.remove('active','pressing');ch[i].classList.add('visited');}
+  const el=ch[idx];
+  const modeData=MODES[currentMode];
+  const snd=modeData.sounds[idx];
+  el.classList.remove('visited','active');
+  el.classList.add('pressing');
+  setTimeout(()=>{
+    el.classList.remove('pressing');
+    el.classList.add('active');
+    if(snd){
+      const label=Array.isArray(snd)?snd.filter(s=>s).join('-'):snd;
+      if(label)fb(label.toUpperCase());
+      playSequence(Array.isArray(snd)?snd:[snd]);
+      animWave();
+    }
+  },80);
+}
+
+function doTap(){
+  rc();
+  if(currentMode==='word'){
+    // Word mode — one tap plays whole word
+    activate(0);
+    return;
+  }
+  speak('digitongue');
+  fb('◆ DIGITONGUE ◆');
+  animWave();
+  document.getElementById('instruction').textContent='now swipe right →';
+  gc().forEach((c,i)=>{
+    setTimeout(()=>c.classList.add('pressing'),i*60);
+    setTimeout(()=>{c.classList.remove('pressing');c.classList.add('active');},i*60+80);
+    setTimeout(()=>c.classList.remove('active'),i*60+360);
+  });
+}
+
+let tx=0,ty=0,t0=0,sw=false,sd=null,li=-1;
+const badge=document.getElementById('badge');
+
+badge.addEventListener('touchstart',e=>{
+  const t=e.touches[0];tx=t.clientX;ty=t.clientY;t0=Date.now();
+  sw=false;sd=null;li=-1;speechSynthesis&&speechSynthesis.cancel();rc();
+},{passive:true});
+
+badge.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const t=e.touches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+  if(!sd&&(Math.abs(dx)>8||Math.abs(dy)>8))sd=Math.abs(dx)>Math.abs(dy)?'h':'v';
+  if(sd!=='h'||dx<0)return;
+  sw=true;
+  document.getElementById('instruction').textContent='◈ sounding out...';
+  const idx=getIdx(t.clientX);if(idx===-1||idx===li)return;li=idx;activate(idx);
+},{passive:false});
+
+badge.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0],dx=t.clientX-tx,dt=Date.now()-t0;
+  if(sw&&sd==='h'&&dx>0){
+    const ch=gc(),done=ch.filter(c=>c.classList.contains('visited')||c.classList.contains('active')).length;
+    if(done>=ch.length){setTimeout(()=>{speak('digitongue');fb('◆ DIGITONGUE ◆');animWave();
+      document.getElementById('instruction').textContent='◆ complete ◆';},200);}
+    setTimeout(rc,1200);
+  }else if(!sw&&dt<300&&Math.abs(dx)<10){doTap();}
+  sw=false;sd=null;
+});
+
+let md=false,mx=0;
+badge.addEventListener('mousedown',e=>{md=true;mx=e.clientX;sw=false;li=-1;sd=null;rc();});
+badge.addEventListener('mousemove',e=>{
+  if(!md)return;const dx=e.clientX-mx;
+  if(!sd&&Math.abs(dx)>8)sd='h';if(sd!=='h'||dx<0)return;sw=true;
+  const idx=getIdx(e.clientX);if(idx===-1||idx===li)return;li=idx;activate(idx);
+});
+badge.addEventListener('mouseup',e=>{
+  if(!md)return;const dx=e.clientX-mx;
+  if(!sw&&Math.abs(dx)<5)doTap();
+  else if(sw){
+    const ch=gc(),done=ch.filter(c=>c.classList.contains('visited')||c.classList.contains('active')).length;
+    if(done>=ch.length){setTimeout(()=>{speak('digitongue');fb('◆ DIGITONGUE ◆');},200);}
+    setTimeout(rc,1200);
+  }
+  md=false;sw=false;sd=null;
+});
+badge.addEventListener('mouseleave',()=>{if(md){md=false;sw=false;}});
+
+
+</script>
+</body>
+</html>
